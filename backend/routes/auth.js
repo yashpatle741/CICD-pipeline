@@ -1,0 +1,31 @@
+const express = require('express');
+const router = express.Router();
+const { register, login, sendOTP, verifyOTP, resendOTP } = require('../controllers/authController');
+
+// @route   POST /api/auth/register
+// @desc    Register new user
+// @access  Public
+router.post('/register', register);
+
+// @route   POST /api/auth/login
+// @desc    Login user
+// @access  Public
+router.post('/login', login);
+
+// @route   POST /api/auth/send-otp
+// @desc    Send OTP to phone/email
+// @access  Public
+router.post('/send-otp', sendOTP);
+
+// @route   POST /api/auth/verify-otp
+// @desc    Verify OTP
+// @access  Public
+router.post('/verify-otp', verifyOTP);
+
+// @route   POST /api/auth/resend-otp
+// @desc    Resend OTP
+// @access  Public
+router.post('/resend-otp', resendOTP);
+
+module.exports = router;
+

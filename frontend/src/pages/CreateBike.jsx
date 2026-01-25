@@ -1,0 +1,331 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Navbar from '../components/Navbar';
+import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
+import toast from 'react-hot-toast';
+
+const CreateBike = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    bikeNumber: '',
+    brand: '',
+    model: '',
+    manufacturingYear: '',
+    mileage: '',
+    condition: 'good',
+    description: '',
+    hourlyPrice: '',
+    dailyPrice: '',
+    handoverLocation: {
+      address: '',
+      lat: '',
+      lng: ''
+    }
+  });
+  const [images, setImages] = useState({
+    frontView: null,
+    backView: null,
+    sideView: null,
+    meterPhoto: null,
+    scratches: null
+  });
+
+
+const [uploading, setUploading] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [createdBikeId, setCreatedBikeId] = useState(null);
+
+   const handleImageSelect = (e, key) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploading(prev => ({ ...prev, [key]: true }));
+
+    setTimeout(() => {
+      setImages(prev => ({ ...prev, [key]: file }));
+      setUploading(prev => ({ ...prev, [key]: false }));
+    }, 1200);
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name.startsWith('handoverLocation.')) {
+      const field = name.split('.')[1];
+      setFormData({
+        ...formData,
+        handoverLocation: {
+          ...formData.handoverLocation,
+          [field]: value
+        }
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value
+      });
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      let bikeId = createdBikeId;
+
+      // 1. Create Bike Listing (Only if not already created)
+      if (!bikeId) {
+        const response = await api.post('/api/bikes', formData);
+        bikeId = response.data.bike._id;
+        setCreatedBikeId(bikeId);
+      }
+
+      // 2. Upload Images
+      const imageFormData = new FormData();
+      const imageTypes = [];
+
+      if (images.frontView) {
+        imageFormData.append('images', images.frontView);
+        imageTypes.push('frontView');
+      }
+      if (images.backView) {
+        imageFormData.append('images', images.backView);
+        imageTypes.push('backView');
+      }
+      if (images.sideView) {
+        imageFormData.append('images', images.sideView);
+        imageTypes.push('sideView');
+      }
+      if (images.meterPhoto) {
+        imageFormData.append('images', images.meterPhoto);
+        imageTypes.push('meterPhoto');
+      }
+      if (images.scratches) {
+        imageFormData.append('images', images.scratches);
+        imageTypes.push('scratches');
+      }
+
+      imageFormData.append('imageTypes', JSON.stringify(imageTypes));
+
+      if (imageTypes.length > 0) {
+        await api.post(`/api/bikes/${bikeId}/images`, imageFormData);
+      }
+
+      toast.success('Bike listing created successfully!');
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Submission Error:', error);
+      toast.error(error.response?.data?.message || 'Failed to create bike listing. Please try uploading images again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  const UploadBox = ({ label, imgKey, required }) => (
+  <div>
+    <label className="block text-sm font-medium mb-2 text-black">
+      {label} {required && '*'}
+    </label>
+
+    <input
+      type="file"
+      accept="image/*"
+      id={imgKey}
+      hidden
+      onChange={(e) => handleImageSelect(e, imgKey)}
+    />
+
+    <button
+      type="button"
+      onClick={() => document.getElementById(imgKey).click()}
+      className="w-full flex items-center justify-center gap-2
+                 bg-green-900 hover:bg-black text-white
+                 py-3 rounded-full transition txt-xl"
+    > 
+      {uploading[imgKey]
+        ? 'Uploading...'
+        : images[imgKey]
+        ? images[imgKey].name
+        : '⬆ Upload'}
+    </button>
+  </div>
+);
+
+
+  return (
+    <div className="min-h-screen bg-white">
+      <Navbar />
+      <div className="max-w-3xl mx-auto px-4 py-12">
+        <h1 className="text-4xl font-bold mb-8 text-neutral-900">List Your Bike</h1>
+
+        <form onSubmit={handleSubmit} className="card space-y-6">
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium mb-2">Bike Number *</label>
+              <input
+                type="text"
+                name="bikeNumber"
+                value={formData.bikeNumber}
+                onChange={handleChange}
+                className="input-field"
+                placeholder="e.g., MH12AB1234"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Brand *</label>
+              <input
+                type="text"
+                name="brand"
+                value={formData.brand}
+                onChange={handleChange}
+                className="input-field"
+                placeholder="e.g., Honda"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium mb-2">Model *</label>
+              <input
+                type="text"
+                name="model"
+                value={formData.model}
+                onChange={handleChange}
+                className="input-field"
+                placeholder="e.g., Activa"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Manufacturing Year *</label>
+              <input
+                type="number"
+                name="manufacturingYear"
+                value={formData.manufacturingYear}
+                onChange={handleChange}
+                className="input-field"
+                placeholder="e.g., 2020"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium mb-2">Mileage (km) *</label>
+              <input
+                type="number"
+                name="mileage"
+                value={formData.mileage}
+                onChange={handleChange}
+                className="input-field"
+                placeholder="e.g., 15000"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Condition *</label>
+              <select
+                name="condition"
+                value={formData.condition}
+                onChange={handleChange}
+                className="input-field"
+                required
+              >
+                <option value="excellent">Excellent</option>
+                <option value="good">Good</option>
+                <option value="fair">Fair</option>
+                <option value="poor">Poor</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">Description</label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              className="input-field"
+              rows="4"
+              placeholder="Describe your bike..."
+            />
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium mb-2">Hourly Price (₹) *</label>
+              <input
+                type="number"
+                name="hourlyPrice"
+                value={formData.hourlyPrice}
+                onChange={handleChange}
+                className="input-field"
+                placeholder="e.g., 100"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Daily Price (₹) *</label>
+              <input
+                type="number"
+                name="dailyPrice"
+                value={formData.dailyPrice}
+                onChange={handleChange}
+                className="input-field"
+                placeholder="e.g., 800"
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">Handover Location Address *</label>
+            <input
+              type="text"
+              name="handoverLocation.address"
+              value={formData.handoverLocation.address}
+              onChange={handleChange}
+              className="input-field"
+              placeholder="Enter address"
+              required
+            />
+          </div>
+
+          <div className="border-t border-green-600 pt-6">
+  <h3 className="text-lg font-semibold mb-4 text-black">
+    Upload Bike Images
+  </h3>
+
+  <p className="text-sm text-green-700 mb-4">
+    Please upload clear images of your bike. Front, Back, Side, and Meter photos are required.
+  </p>
+
+  <div className="grid md:grid-cols-2 gap-6">
+    <UploadBox label="Front View" imgKey="frontView" required />
+    <UploadBox label="Back View" imgKey="backView" required />
+    <UploadBox label="Side View" imgKey="sideView" required />
+    <UploadBox label="Meter / Odometer" imgKey="meterPhoto" required />
+    <UploadBox label="Scratches (Optional)" imgKey="scratches" />
+  </div>
+</div>
+
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full btn-primary disabled:opacity-50"
+          >
+            {loading ? 'Processing...' : (createdBikeId ? 'Retry Upload Images' : 'Create Listing')}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default CreateBike;
