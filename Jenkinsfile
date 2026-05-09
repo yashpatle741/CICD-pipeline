@@ -13,20 +13,17 @@ stages{
         }
     }
 
-    stage('stop old container'){
-
-        steps{
-            sh 'docker stop cicd-container || true'
-            sh 'docker rm cicd-container || true' 
+     stage('Stop Old Containers') {
+            steps {
+                sh 'docker compose down || true'
+            }
         }
-    }
 
-    stage('run container'){
-
-       steps{
-        sh  'docker run -d -p 3000:3000 --name cicd-container cicd-pipeline'
-       }
-    }
+        stage('Deploy Application') {
+            steps {
+                sh 'docker compose up --build -d'
+            }
+        }
  }
 }
 
