@@ -1,0 +1,30 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+    image: frontend-image
+    ports:
+      - "3000:3000"
+  backend:
+    build:
+      context: ./backend
+    image: backend-image
+    ports:
+      - "3001:3000"
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+  nginx:
+    image: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      
+      
+volumes:
+  mongo-data:
+  

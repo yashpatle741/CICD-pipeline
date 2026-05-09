@@ -97,7 +97,7 @@ app.use((error, req, res, next) => {
 // io.on('connection', ...) removed
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/rydzo', {
+mongoose.connect(process.env.MONGODB_URI || process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
