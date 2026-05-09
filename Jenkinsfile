@@ -9,22 +9,22 @@ stages{
 
         steps{
 
-          sh 'docker build -t CICD-pipeline .'
+          sh 'docker build -t cicd-pipeline .'
         }
     }
 
     stage('stop old container'){
 
         steps{
-            sh 'docker stop CICD-container || true'
-            sh 'docker rm CICD-container || true' 
+            sh 'docker stop cicd-container || true'
+            sh 'docker rm cicd-container || true' 
         }
     }
 
     stage('run container'){
 
        steps{
-        sh  'docker run -d -p 3000:3000 --name CICD-container CICD-pipeline'
+        sh  'docker run -d -p 3000:3000 --name cicd-container cicd-pipeline'
        }
     }
  }
