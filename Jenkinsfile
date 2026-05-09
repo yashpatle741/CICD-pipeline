@@ -19,7 +19,7 @@ stages{
         }
     }
 
-    stage('stop old containerss'){
+    stage('stop old container'){
 
         steps{
             sh 'docker stop CICD-container || true'
