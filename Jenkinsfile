@@ -3,13 +3,7 @@ pipeline{
 
        
 stages{
-    stage('clone repo'){
-
-        steps{
-            git branch: 'main' , 
-            url: 'https://github.com/yashpatle741/CICD-pipeline.git'
-        }
-    }
+   
 
     stage('build image'){
 
