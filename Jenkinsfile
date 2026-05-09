@@ -1,19 +1,10 @@
-pipeline{
+pipeline {
+
     agent any
 
-       
-stages{
-   
+    stages {
 
-    stage('build image'){
-
-        steps{
-
-          sh 'docker build -t cicd-pipeline .'
-        }
-    }
-
-     stage('Stop Old Containers') {
+        stage('Stop Old Containers') {
             steps {
                 sh 'docker compose down || true'
             }
@@ -24,6 +15,5 @@ stages{
                 sh 'docker compose up --build -d'
             }
         }
- }
+    }
 }
-
