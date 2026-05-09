@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # RydZO
 RydZo is a person-to-person bike rental platform designed to connect bike owners with customers in a secure and trusted environment. It solves the chaos of unverified rentals by introducing strong identity verification, digital agreements, and a seamless booking flow.
 =======
@@ -142,3 +143,6 @@ RydZo/
 
 This project is created for educational purposes.
 >>>>>>> ad56538 (Initial commit: RydZo full-stack project)
+=======
+# CICD-pipeline
+>>>>>>> 5a3ae9a1ecac34646de3a8f1760ca2a09d280613
