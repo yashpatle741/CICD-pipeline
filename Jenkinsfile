@@ -4,7 +4,7 @@ pipeline {
 
     stages {
 
-        stage('Stop Old Containers') {
+        stage('Stop Old Container') {
             steps {
                 sh 'docker compose down || true'
             }
